@@ -1,0 +1,21 @@
+/****************************************************************
+* 	@Project:	ColorSheme
+*
+*	@Author:	Thomas Lindackers
+*	@Version:	1.1
+*	
+*	@last changes: 30.08.2017
+*	
+*****************************************************************/
+Trace Loading ColorSheme @ $(ProjectName);
+Trace ----------------------------------------------------------;
+
+/*
+	You can modify used Colors for the App here
+*/
+
+// Highlighting Colors
+Let colorPositiv = '=RGB(0,200,0)';
+Let colorNegativ = '=RGB(200,0,0)';
+Let colorNeutral = '=RGB(60,60,60)';
+Let colorDefault = '=RGB(120,120,120)';
