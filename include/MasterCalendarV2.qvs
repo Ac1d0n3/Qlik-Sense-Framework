@@ -10,9 +10,6 @@
 Trace Building MasterCalendar @ $(ProjectName);
 Trace ----------------------------------------------------------;
 
-For i = 1 To 10
-Trace $(i);
-Next i;
 
 	/*
 		Getting Min an MaxDate and store to DB
