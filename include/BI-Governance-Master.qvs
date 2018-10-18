@@ -3,9 +3,9 @@
 *
 *	@Author:	Thomas Lindackers
 *	@Version:	1.1
-*	
+*
 *	@last changes: 22.09.2017
-*	
+*
 *****************************************************************/
 //set $(BI-Governance-WhereStatement) = '';
 Trace Loading BI-Governance @ $(ProjectName);
@@ -15,16 +15,16 @@ if not isNull(BIGovWhereTables) then
 
 endif;
 
-if not isNull(FieldLanguage) then 
-	Set BIWhere = "Where Lang = '$(FieldLanguage)'"; 
+if not isNull(FieldLanguage) then
+	Set BIWhere = "Where Lang = '$(FieldLanguage)'";
 endif;
 
-if(isNull(FrameworkFile) then
+if(isNull(FrameworkFile) or FrameworkFile <> '' then
 	Set FrameworkFile = Framework.xlsx;
 EndIf;
 
 [BI_Governance]:
-LOAD 
+LOAD
 	Name
 	, Value
 	, Description
@@ -33,27 +33,27 @@ LOAD
 	, GenerateSA
 FROM [$(incPath)$(FrameworkFile)] (ooxml, embedded labels, table is [BI-Governance]) $(BIWhere);
 
-FOR i=0 TO NoOfRows('BI_Governance')-1 
-  LET vVar = Peek('Name', $(i), 'BI_Governance'); 
+FOR i=0 TO NoOfRows('BI_Governance')-1
+  LET vVar = Peek('Name', $(i), 'BI_Governance');
   LET vVal = Peek('Value', $(i), 'BI_Governance');
   LET generateSA = Peek('GenerateSA', $(i), 'BI_Governance');
   LET ReplaceVar = Peek('ReplaceVar', $(i), 'BI_Governance');
   LET aDesc = Peek('Description', $(i), 'BI_Governance');
-  
+
   if not isNull(ReplaceVar) and ReplaceVar = 'True' then
 	let '$(vVar)' = '$(vVal)';
 	let '$(vVar)' = Replace($(vVar),'@','$');
-  else 
+  else
 	let '$(vVar)' = '$(vVal)';
   endif
-  
+
   if not isNull(generateSA) and generateSA <> '' then
 	FOR k=1 to SubStringCount(generateSA,',')+1
 		let genValue = subfield(generateSA,',',$(k));
 		let vVarGen = '$(vVar)' & '_' & genValue;
 		let bDesc = aDesc & ' (' & genValue &')';
 		trace $(bDesc);
-		let vValGen = 
+		let vValGen =
 			replace(replace(replace(replace(replace(
 			replace(replace(replace(replace(replace( '$(vVal)',
 				'sum(','sum(@('&genValue&') '),
@@ -67,12 +67,12 @@ FOR i=0 TO NoOfRows('BI_Governance')-1
 				'min(distinct','min(distinct @('&genValue&') '),
 				'max(distinct','max(distinct @('&genValue&') ')
 		;
-		trace Generate Expression: $(vVarGen) = $(vValGen); 
+		trace Generate Expression: $(vVarGen) = $(vValGen);
 		let '$(vVarGen)' = '$(vValGen)';
 		let '$(vVarGen)' = Replace($(vVarGen),'@','$');
-		
+
 		GenVarsNewValues:
-		Load 
+		Load
 			'New' As xxxsource
 			,'$(vVarGen)' As Name
 			, '$(vValGen)' As Value
@@ -80,12 +80,12 @@ FOR i=0 TO NoOfRows('BI_Governance')-1
 			, '' As ReplaceVar
 			, 'GeneratedVar' As [used Table(s)]
 			, '' As GenerateSA
-		Autogenerate 1;	
+		Autogenerate 1;
 	Next k;
   endif;
 NEXT i;
 
-LOAD 
+LOAD
 	Name
 	, Value
 	, Description
@@ -94,9 +94,9 @@ LOAD
 	, GenerateSA
 Resident GenVarsNewValues;
 Drop Table GenVarsNewValues;
-	
+
 [BIGovernance]:
-LOAD 
+LOAD
 	Name As VariableName
 	, Replace(Value,'@','$') AS VariableValue
 	, Description As BI_Description
